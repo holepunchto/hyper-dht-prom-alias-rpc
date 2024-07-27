@@ -2,20 +2,22 @@ const ReadyResource = require('ready-resource')
 const RPC = require('protomux-rpc')
 const HyperDHT = require('hyperdht')
 const safetyCatch = require('safety-catch')
+const idEnc = require('hypercore-id-encoding')
+
 const { AliasReqEnc, AliasRespEnc } = require('./lib/encodings')
 
 const PROTOCOL_NAME = 'register-alias'
 
 class AliasRpcClient extends ReadyResource {
-  constructor (targetPubKey, secret, { bootstrap }) {
+  constructor (serverPubKey, secret, { bootstrap }) {
     super()
 
     // TODO: investigate why we can't use our own DHT
     // (Doig so means the lookup connection is never opened)
     this.dht = new HyperDHT({ bootstrap })
 
-    this.targetKey = targetPubKey
-    this.secret = secret
+    this.serverPubKey = idEnc.decode(serverPubKey)
+    this.secret = idEnc.decode(secret)
   }
 
   _open () { }
@@ -25,7 +27,9 @@ class AliasRpcClient extends ReadyResource {
   }
 
   async registerAlias (alias, targetKey) {
-    const socket = this.dht.connect(this.targetKey)
+    targetKey = idEnc.decode(targetKey)
+
+    const socket = this.dht.connect(this.serverPubKey)
     socket.on('error', (error) => {
       safetyCatch(error)
       this.emit('socket-error', { error, alias, targetKey })
