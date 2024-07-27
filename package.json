@@ -1,0 +1,28 @@
+{
+  "name": "dht-prom-alias-rpc",
+  "version": "0.0.0",
+  "description": "Protomux RPC for registering aliases with a dht-prometheus service",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/dcent-tech/dht-prom-alias-rpc.git"
+  },
+  "keywords": [
+    "DHT",
+    "Prometheus",
+    "protomux",
+    "rpc"
+  ],
+  "author": "H. Degroote",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://gitlab.com/dcent-tech/dht-prom-alias-rpc/issues"
+  },
+  "homepage": "https://gitlab.com/dcent-tech/dht-prom-alias-rpc#readme",
+  "devDependencies": {
+    "standard": "^17.1.0"
+  }
+}
