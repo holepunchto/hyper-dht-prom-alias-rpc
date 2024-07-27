@@ -1,4 +1,3 @@
 # DHT Prom Alias RPC
 
-Protomux RPC for registering aliases with a dht-prometheus service.
-
+Protomux RPC for registering aliases with a DHT-Prometheus service.
