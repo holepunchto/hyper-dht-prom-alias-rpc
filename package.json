@@ -24,5 +24,13 @@
   "homepage": "https://gitlab.com/dcent-tech/dht-prom-alias-rpc#readme",
   "devDependencies": {
     "standard": "^17.1.0"
+  },
+  "dependencies": {
+    "b4a": "^1.6.6",
+    "compact-encoding": "^2.15.0",
+    "hyperdht": "^6.16.0",
+    "protomux-rpc": "^1.6.0",
+    "ready-resource": "^1.1.1",
+    "safety-catch": "^1.0.2"
   }
 }
