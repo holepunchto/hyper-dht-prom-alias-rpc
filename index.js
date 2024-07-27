@@ -18,7 +18,7 @@ class AliasRpcServer extends ReadyResource {
   }
 
   get publicKey () {
-    return this.swarm.keyPair.pubicKey
+    return this.swarm.keyPair.publicKey
   }
 
   async _open () {
@@ -48,7 +48,6 @@ class AliasRpcServer extends ReadyResource {
       'alias',
       { responseEncoding: AliasRespEnc, requestEncoding: AliasReqEnc },
       async (req) => {
-        console.log(req)
         const targetPublicKey = req.targetPublicKey
         const alias = req.alias
 

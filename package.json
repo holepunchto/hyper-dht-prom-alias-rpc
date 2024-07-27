@@ -4,7 +4,7 @@
   "description": "Protomux RPC for registering aliases with a dht-prometheus service",
   "main": "index.js",
   "scripts": {
-    "test": "standard"
+    "test": "standard && npx brittle test.js"
   },
   "repository": {
     "type": "git",
@@ -23,11 +23,15 @@
   },
   "homepage": "https://gitlab.com/dcent-tech/dht-prom-alias-rpc#readme",
   "devDependencies": {
+    "brittle": "^3.6.1",
+    "hypercore-crypto": "^3.4.2",
+    "hyperswarm": "^4.8.1",
     "standard": "^17.1.0"
   },
   "dependencies": {
     "b4a": "^1.6.6",
     "compact-encoding": "^2.15.0",
+    "hypercore-id-encoding": "^1.3.0",
     "hyperdht": "^6.16.0",
     "protomux-rpc": "^1.6.0",
     "ready-resource": "^1.1.1",
