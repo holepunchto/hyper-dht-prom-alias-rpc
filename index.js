@@ -50,15 +50,17 @@ class AliasRpcServer extends ReadyResource {
       async (req) => {
         const targetPublicKey = req.targetPublicKey
         const alias = req.alias
+        const hostname = req.hostname
+        const service = req.service
 
         if (!b4a.equals(req.secret, this.secret)) {
           this.emit('alias-unauthorised', { uid, remotePublicKey, targetPublicKey, alias })
           return { success: false, errorMessage: 'unauthorised' }
         }
 
-        this.emit('alias-request', { uid, remotePublicKey, targetPublicKey, alias })
+        this.emit('alias-request', { uid, remotePublicKey, targetPublicKey, alias, hostname, service })
         try {
-          const updated = await this._putAlias(alias, targetPublicKey)
+          const updated = await this._putAlias(alias, targetPublicKey, hostname, service)
           this.emit('register-success', { uid, alias, targetPublicKey, updated })
           return {
             success: true,

@@ -26,7 +26,7 @@ class AliasRpcClient extends ReadyResource {
     await this.dht.destroy()
   }
 
-  async registerAlias (alias, targetKey) {
+  async registerAlias (alias, targetKey, hostname, service, { major, minor } = {}) {
     targetKey = idEnc.decode(targetKey)
 
     const socket = this.dht.connect(this.serverPubKey)
@@ -51,7 +51,11 @@ class AliasRpcClient extends ReadyResource {
         {
           alias,
           targetPublicKey: targetKey,
-          secret: this.secret
+          secret: this.secret,
+          hostname,
+          service,
+          major,
+          minor
         },
         { requestEncoding: AliasReqEnc, responseEncoding: AliasRespEnc }
       )
