@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const ReadyResource = require('ready-resource')
 const RPC = require('protomux-rpc')
 const HyperDHT = require('hyperdht')
@@ -28,11 +29,20 @@ class AliasRpcClient extends ReadyResource {
 
   async registerAlias (alias, targetKey, hostname, service, { major, minor } = {}) {
     targetKey = idEnc.decode(targetKey)
+    const uid = crypto.randomUUID()
+
+    this.emit('register-alias-attempt', {
+      alias,
+      targetKey,
+      hostname,
+      service,
+      uid
+    })
 
     const socket = this.dht.connect(this.serverPubKey)
     socket.on('error', (error) => {
       safetyCatch(error)
-      this.emit('socket-error', { error, alias, targetKey })
+      this.emit('socket-error', { error, alias, targetKey, uid })
     })
 
     // TODO: I think this needs a timeout (no guarantee opened gets emitted, except if the socket gets destroyed)
