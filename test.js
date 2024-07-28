@@ -8,28 +8,34 @@ const AliasRpcServer = require('./index')
 const AliasRpcClient = require('./client')
 
 test('put alias happy flow', async t => {
-  t.plan(4)
+  t.plan(6)
 
-  const putAliasCb = async (alias, targetPublicKey) => {
+  const putAliasCb = async (alias, targetPublicKey, hostname, service) => {
     t.is(alias, 'dummy', 'correct alias')
     t.alike(targetPublicKey, key, 'correct key')
+    t.is(hostname, 'my-host', 'correct hostname')
+    t.is(service, 'my-service', 'correct service')
 
     return true
   }
 
   const { client, server } = await setup(t, putAliasCb)
+  server.on('register-error', ({ error }) => {
+    console.error(error)
+    t.fail('server error')
+  })
   await server.ready()
   await server.swarm.flush()
   await client.ready()
 
   const key = hypCrypto.randomBytes(32)
 
-  server.on('register-success', ({ updated, alias, targetPublicKey }) => {
+  server.on('register-success', ({ alias, targetPublicKey }) => {
     t.is(alias, 'dummy', 'correct alias')
     t.alike(targetPublicKey, key, 'correct key')
   })
 
-  await client.registerAlias('dummy', key)
+  await client.registerAlias('dummy', key, 'my-host', 'my-service')
 })
 
 test('put alias error in cb', async t => {
@@ -51,7 +57,7 @@ test('put alias error in cb', async t => {
   })
 
   await t.exception(
-    async () => await client.registerAlias('dummy', key),
+    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service'),
     /Failed to register alias/,
     'correct error'
   )
@@ -72,8 +78,54 @@ test('put alias invalid input', async t => {
   })
 
   await t.exception(
-    async () => await client.registerAlias('dummy', 'no key'),
+    async () => await client.registerAlias('dummy', 'no key', 'my-host', 'my-service'),
     /Invalid Hypercore key/,
+    'invalid key'
+  )
+})
+
+test('put alias with different major', async t => {
+  const putAliasCb = async (alias, targetPublicKey) => {
+    t.fail('should not get here')
+  }
+
+  const { client, server } = await setup(t, putAliasCb)
+  await server.ready()
+  await server.swarm.flush()
+  await client.ready()
+
+  server.on('register-error', () => {
+    t.fail('should not get here')
+  })
+
+  const key = hypCrypto.randomBytes(32)
+
+  await t.exception(
+    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service', { major: 1000 }),
+    /other major version/,
+    'invalid key'
+  )
+})
+
+test('put alias with higher minor', async t => {
+  const putAliasCb = async (alias, targetPublicKey) => {
+    t.fail('should not get here')
+  }
+
+  const { client, server } = await setup(t, putAliasCb)
+  await server.ready()
+  await server.swarm.flush()
+  await client.ready()
+
+  server.on('register-error', () => {
+    t.fail('should not get here')
+  })
+
+  const key = hypCrypto.randomBytes(32)
+
+  await t.exception(
+    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service', { minor: 1000 }),
+    /higher minor version/,
     'invalid key'
   )
 })
