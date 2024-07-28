@@ -1,6 +1,6 @@
 {
   "name": "dht-prom-alias-rpc",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
   "description": "Protomux RPC for registering aliases with a dht-prometheus service",
   "main": "index.js",
   "scripts": {
