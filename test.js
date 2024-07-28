@@ -8,7 +8,7 @@ const AliasRpcServer = require('./index')
 const AliasRpcClient = require('./client')
 
 test('put alias happy flow', async t => {
-  t.plan(6)
+  t.plan(10)
 
   const putAliasCb = async (alias, targetPublicKey, hostname, service) => {
     t.is(alias, 'dummy', 'correct alias')
@@ -19,6 +19,8 @@ test('put alias happy flow', async t => {
     return true
   }
 
+  const key = hypCrypto.randomBytes(32)
+
   const { client, server } = await setup(t, putAliasCb)
   server.on('register-error', ({ error }) => {
     console.error(error)
@@ -26,9 +28,23 @@ test('put alias happy flow', async t => {
   })
   await server.ready()
   await server.swarm.flush()
-  await client.ready()
 
-  const key = hypCrypto.randomBytes(32)
+  // Mostly just checking the event
+  client.on(
+    'register-alias-attempt',
+    ({
+      alias,
+      targetKey,
+      hostname,
+      service
+    }) => {
+      t.is(alias, 'dummy', 'correct alias')
+      t.alike(key, targetKey, 'correct key')
+      t.is(hostname, 'my-host', 'correct host')
+      t.is(service, 'my-service', 'correct service')
+    }
+  )
+  await client.ready()
 
   server.on('register-success', ({ alias, targetPublicKey }) => {
     t.is(alias, 'dummy', 'correct alias')
