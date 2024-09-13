@@ -22,7 +22,7 @@ Create a new alias rpc server.
 
 `swarm` is a [Hyperswarm](https://github.com/holepunchto/hyperswarm) instance. Its life cycle is NOT managed by the RPC server.
 
-Note: `rpcserver.swarm.listen()` needs to be called before the rpcServer has a public key and connections are accepted.
+Note: `rpcServer.swarm.listen()` needs to be called before the rpcServer has a public key and connections are accepted.
 
 `secret` is a 32-byte secret. Only clients which know this secret will be allowed to register aliases.
 
@@ -103,3 +103,7 @@ Returns a boolean `updated` which is true when the entry was not yet present in 
 Emitted whenever an alias request is attempted.
 
 `uid` is a unique id for the attempt to map `alias` to `targetKey`, with as additional info `hostname` and `service`.
+
+#### `rpcClient.on('connection-error', ({ error, alias, targetKey, uid }))`
+
+Emitted whenever a connection errors. Connection errors are expected, and this is not a call to action (the connection will clean itself up), but it can be useful for logging.

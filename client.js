@@ -36,7 +36,7 @@ class AliasRpcClient extends EventEmitter {
     const socket = this.dht.connect(this.serverPubKey)
     socket.on('error', (error) => {
       safetyCatch(error)
-      this.emit('socket-error', { error, alias, targetKey, uid })
+      this.emit('connection-error', { error, alias, targetKey, uid })
     })
 
     // guaranteed to resolve (also when socket destroys without being opened)
