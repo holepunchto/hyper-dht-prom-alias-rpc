@@ -1,7 +1,6 @@
 const crypto = require('crypto')
-const ReadyResource = require('ready-resource')
+const { EventEmitter } = require('events')
 const RPC = require('protomux-rpc')
-const HyperDHT = require('hyperdht')
 const safetyCatch = require('safety-catch')
 const idEnc = require('hypercore-id-encoding')
 
@@ -9,29 +8,24 @@ const { AliasReqEnc, AliasRespEnc } = require('./lib/encodings')
 
 const PROTOCOL_NAME = 'register-alias'
 
-class AliasRpcClient extends ReadyResource {
-  constructor (serverPubKey, secret, { bootstrap }) {
+// TODO: Circuit breaker in registerAlias
+
+class AliasRpcClient extends EventEmitter {
+  constructor (serverPubKey, secret, dht, { requestTimeoutMs = 5000 } = {}) {
     super()
 
-    // TODO: investigate why we can't use our own DHT
-    // (Doig so means the lookup connection is never opened)
-    this.dht = new HyperDHT({ bootstrap })
-
+    this.dht = dht
     this.serverPubKey = idEnc.decode(serverPubKey)
     this.secret = idEnc.decode(secret)
-  }
 
-  _open () { }
-
-  async _close () {
-    await this.dht.destroy()
+    this.requestTimeoutMs = requestTimeoutMs
   }
 
   async registerAlias (alias, targetKey, hostname, service, { major, minor } = {}) {
     targetKey = idEnc.decode(targetKey)
     const uid = crypto.randomUUID()
 
-    this.emit('register-alias-attempt', {
+    this.emit('alias-attempt', {
       alias,
       targetKey,
       hostname,
@@ -45,7 +39,7 @@ class AliasRpcClient extends ReadyResource {
       this.emit('socket-error', { error, alias, targetKey, uid })
     })
 
-    // TODO: I think this needs a timeout (no guarantee opened gets emitted, except if the socket gets destroyed)
+    // guaranteed to resolve (also when socket destroys without being opened)
     await socket.opened
 
     if (!socket.connected) {
@@ -67,7 +61,11 @@ class AliasRpcClient extends ReadyResource {
           major,
           minor
         },
-        { requestEncoding: AliasReqEnc, responseEncoding: AliasRespEnc }
+        {
+          requestEncoding: AliasReqEnc,
+          responseEncoding: AliasRespEnc,
+          timeout: this.requestTimeoutMs
+        }
       )
 
       if (res.success !== true) {
