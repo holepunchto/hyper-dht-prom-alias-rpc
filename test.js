@@ -15,7 +15,7 @@ const HyperDHT = require('hyperdht')
 const EXAMPLE_PATH = path.join(__dirname, 'example.js')
 
 test('put alias happy flow', async t => {
-  t.plan(13)
+  t.plan(14)
 
   const putAliasCb = async (alias, targetPublicKey, hostname, service) => {
     t.is(alias, 'dummy', 'correct alias')
@@ -68,6 +68,9 @@ test('put alias happy flow', async t => {
   t.ok(infoLogs[0].includes('Alias server opened connection to'), 'log connection=open')
   t.ok(infoLogs[1].includes('Alias request from'), 'log alias-request')
   t.ok(infoLogs[2].includes('Alias success for dummy->'), 'alias-success log')
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  t.is(server.swarm.connections.size, 0, 'Connection ends')
 })
 
 test('put alias error in cb', async t => {

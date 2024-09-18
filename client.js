@@ -74,7 +74,7 @@ class AliasRpcClient extends EventEmitter {
 
       return res.updated
     } finally {
-      rpc.destroy()
+      socket.end()
     }
   }
 }
