@@ -39,15 +39,15 @@ class AliasRpcClient extends EventEmitter {
       this.emit('connection-error', { error, alias, targetKey, uid })
     })
 
-    // guaranteed to resolve (also when socket destroys without being opened)
-    await socket.opened
-
-    if (!socket.connected) {
-      throw new Error('Could not open socket')
-    }
-
-    const rpc = new RPC(socket, { protocol: PROTOCOL_NAME })
     try {
+      // guaranteed to resolve (also when socket destroys without being opened)
+      await socket.opened
+
+      if (!socket.connected) {
+        throw new Error('Could not open socket')
+      }
+
+      const rpc = new RPC(socket, { protocol: PROTOCOL_NAME })
       await rpc.fullyOpened()
 
       const res = await rpc.request(
@@ -68,13 +68,16 @@ class AliasRpcClient extends EventEmitter {
         }
       )
 
+      // TODO: figure out if relevant, or if it's the same to only destroy in the finally
+      socket.end()
+
       if (res.success !== true) {
         throw new Error(res.errorMessage)
       }
 
       return res.updated
     } finally {
-      socket.end()
+      socket.destroy() // no-op if already destroying/destroyed
     }
   }
 }
