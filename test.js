@@ -176,11 +176,13 @@ test('put alias with different major', async t => {
 
   const key = hypCrypto.randomBytes(32)
 
-  await t.exception(
-    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service', { major: 1000 }),
-    /other major version/,
-    'invalid key'
-  )
+  try {
+    await client.registerAlias('dummy', key, 'my-host', 'my-service', { major: 1000 })
+    t.fail()
+  } catch (e) {
+    t.is(e.code, 'DECODE_ERROR')
+    t.is(e.cause.message, 'Cannot decode RegisterRequest of other major version 1000 (own major: 1)')
+  }
 })
 
 test('put alias fails if remote not available', async t => {
@@ -229,11 +231,13 @@ test('put alias with higher minor', async t => {
 
   const key = hypCrypto.randomBytes(32)
 
-  await t.exception(
-    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service', { minor: 1000 }),
-    /higher minor version/,
-    'invalid key'
-  )
+  try {
+    await client.registerAlias('dummy', key, 'my-host', 'my-service', { minor: 1000 })
+    t.fail('no error')
+  } catch (e) {
+    t.is(e.code, 'DECODE_ERROR')
+    t.is(e.cause.message, 'Cannot decode RegisterRequest of higher minor version 1000 (own minor: 1)')
+  }
 })
 
 test('Example works (sanity check)', async t => {
