@@ -11,11 +11,12 @@ const NewlineDecoder = require('newline-decoder')
 const AliasRpcServer = require('./index')
 const AliasRpcClient = require('./client')
 const HyperDHT = require('hyperdht')
+const ProtomuxRpcClient = require('protomux-rpc-client')
 
 const EXAMPLE_PATH = path.join(__dirname, 'example.js')
 
 test('put alias happy flow', async t => {
-  t.plan(14)
+  t.plan(13)
 
   const putAliasCb = async (alias, targetPublicKey, hostname, service) => {
     t.is(alias, 'dummy', 'correct alias')
@@ -68,9 +69,6 @@ test('put alias happy flow', async t => {
   t.ok(infoLogs[0].includes('Alias server opened connection to'), 'log connection=open')
   t.ok(infoLogs[1].includes('Alias request from'), 'log alias-request')
   t.ok(infoLogs[2].includes('Alias success for dummy->'), 'alias-success log')
-
-  await new Promise(resolve => setTimeout(resolve, 500))
-  t.is(server.swarm.connections.size, 0, 'Connection ends')
 })
 
 test('put alias error in cb', async t => {
@@ -190,13 +188,13 @@ test('put alias fails if remote not available', async t => {
     t.fail('should not happen')
   }
 
-  const { client, server } = await setup(t, putAliasCb, { requestTimeoutMs: 10 })
+  const { client, server } = await setup(t, putAliasCb)
   await server.swarm.destroy()
 
   const key = hypCrypto.randomBytes(32)
   await t.exception(
-    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service'),
-    /Could not open socket/
+    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service', { timeout: 10 }),
+    /REQUEST_TIMEOUT/
   )
 })
 
@@ -205,14 +203,14 @@ test('put alias fails after timeout', async t => {
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 
-  const { client, server } = await setup(t, putAliasCb, { requestTimeoutMs: 10 })
+  const { client, server } = await setup(t, putAliasCb)
   await server.swarm.listen()
   await server.swarm.flush()
 
   const key = hypCrypto.randomBytes(32)
   await t.exception(
-    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service'),
-    /TIMEOUT_EXCEEDED/
+    async () => await client.registerAlias('dummy', key, 'my-host', 'my-service', { timeout: 10 }),
+    /REQUEST_TIMEOUT/
   )
 })
 
@@ -288,15 +286,19 @@ async function setup (t, putAliasCb, clientOpts = {}) {
     swarm, sharedSecret, putAliasCb
   )
 
+  const clientDht = new HyperDHT({ bootstrap })
+  const rpcClient = new ProtomuxRpcClient(clientDht)
+
   const client = new AliasRpcClient(
     server.publicKey,
     sharedSecret,
-    new HyperDHT({ bootstrap }),
+    rpcClient,
     clientOpts
   )
 
   t.teardown(async () => {
-    await client.dht.destroy()
+    await rpcClient.close()
+    await clientDht.destroy()
     await swarm.destroy()
     await testnet.destroy()
   })
