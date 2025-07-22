@@ -8,11 +8,6 @@ const { AliasReqEnc, AliasRespEnc } = require('./lib/encodings')
 
 const PROTOCOL_NAME = 'register-alias'
 
-// TODO:
-// - Rate-limit, particularly unauthorized requests
-// - Fast-failure when overloaded
-// - Close connection after a max time (impolite clients can keep the connection open forever)
-
 class AliasRpcServer extends EventEmitter {
   constructor (swarm, secret, putAliasCb) {
     super()

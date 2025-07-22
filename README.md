@@ -74,7 +74,7 @@ Emitted whenever the `putAliacCb` threw an error. `error` contains the error obj
 
 ### Client
 
-#### `const rpcClient = new AliasRpcClient(serverPubKey, secret, dht)`
+#### `const client = new AliasRpcClient(serverPubKey, secret, protomuxRpcClient)`
 
 Create a new alias rpc client.
 
@@ -82,7 +82,7 @@ Create a new alias rpc client.
 
 `secret` is the secret shared with the server.
 
-`dht` is a [HyperDHT](https://github.com/holepunchto/hyperdht) instance. Its lifecycle is NOT managed by the rpc client.
+`protomuxRpcClient` is a [Protomux RPC Client](https://github.com/holepunchto/protomux-rpc-client) instance. Its lifecycle is NOT managed by the rpc client.
 
 #### `const updated = await client.registerAlias(alias, targetKey, hostname, service)`
 
@@ -98,12 +98,12 @@ Returns a boolean `updated` which is true when the entry was not yet present in 
 
 #### Events
 
-#### `rpcClient.on('alias-attempt', ({ uid, alias, targetKey, hostname, service }))`
+#### `client.on('alias-attempt', ({ uid, alias, targetKey, hostname, service }))`
 
 Emitted whenever an alias request is attempted.
 
 `uid` is a unique id for the attempt to map `alias` to `targetKey`, with as additional info `hostname` and `service`.
 
-#### `rpcClient.on('connection-error', ({ error, alias, targetKey, uid }))`
+#### `client.on('connection-error', ({ error, alias, targetKey, uid }))`
 
 Emitted whenever a connection errors. Connection errors are expected, and this is not a call to action (the connection will clean itself up), but it can be useful for logging.

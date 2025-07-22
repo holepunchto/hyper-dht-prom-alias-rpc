@@ -6,6 +6,7 @@ const setupTestnet = require('hyperdht/testnet')
 
 const AliasRpcClient = require('./client')
 const AliasRpcServer = require('.') // dht-prom-alias-rpc')
+const ProtomuxRpcClient = require('protomux-rpc-client')
 
 async function setupServer (secret, bootstrap) {
   const putAliasCb = (alias, targetPubKey, hostname, service) => {
@@ -33,15 +34,17 @@ async function main () {
   await rpcServer.swarm.flush() // Wait until fully announced (only needed for tests)
 
   const clientDht = new HyperDHT({ bootstrap })
-  const rpcClient = new AliasRpcClient(rpcServer.publicKey, secret, clientDht)
+  const rpcClient = new ProtomuxRpcClient(clientDht)
+  const client = new AliasRpcClient(rpcServer.publicKey, secret, rpcClient)
 
-  await rpcClient.registerAlias(
+  await client.registerAlias(
     'dummy-service-alias',
     'a'.repeat(64),
     os.hostname(),
     'dummy-service'
   )
 
+  await rpcClient.close()
   await clientDht.destroy()
   await rpcServer.swarm.destroy()
   await testnet.destroy()
