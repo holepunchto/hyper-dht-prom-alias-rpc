@@ -84,7 +84,7 @@ Create a new alias rpc client.
 
 `protomuxRpcClient` is a [Protomux RPC Client](https://github.com/holepunchto/protomux-rpc-client) instance. Its lifecycle is NOT managed by the rpc client.
 
-#### `const updated = await client.registerAlias(alias, targetKey, hostname, service)`
+#### `const updated = await client.registerAlias(alias, targetKey, hostname, service, opts?)`
 
 Register an `alias`, mapping it to the provided `targetKey`.
 
@@ -93,6 +93,9 @@ Hostname and service are included for easy filtering in prometheus:
 `hostname` identifies the machine where the process runs (typically `os.hostname()`).
 
 `service` indicates the kind of service registered.
+
+`opts` include:
+- `timeout` max request duration before it times out (in ms)
 
 Returns a boolean `updated` which is true when the entry was not yet present in the server.
 
