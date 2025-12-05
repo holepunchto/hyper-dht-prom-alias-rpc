@@ -210,7 +210,7 @@ test('put alias fails after timeout', async t => {
   const key = hypCrypto.randomBytes(32)
   await t.exception(
     async () => await client.registerAlias('dummy', key, 'my-host', 'my-service', { timeout: 10 }),
-    /REQUEST_TIMEOUT/
+    /TIMEOUT_EXCEEDED/
   )
 })
 
