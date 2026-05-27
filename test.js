@@ -15,10 +15,10 @@ const ProtomuxRpcClient = require('protomux-rpc-client')
 
 const EXAMPLE_PATH = path.join(__dirname, 'example.js')
 
-test('put alias happy flow', async t => {
+test('put alias happy flow', async (t) => {
   t.plan(13)
 
-  const putAliasCb = async (alias, targetPublicKey, hostname, service) => {
+  const putAliasCb = (alias, targetPublicKey, hostname, service) => {
     t.is(alias, 'dummy', 'correct alias')
     t.alike(targetPublicKey, key, 'correct key')
     t.is(hostname, 'my-host', 'correct hostname')
@@ -32,9 +32,9 @@ test('put alias happy flow', async t => {
   const { client, server } = await setup(t, putAliasCb)
 
   const infoLogs = []
-  server.registerLogger(({
+  server.registerLogger({
     info: (d) => infoLogs.push(d)
-  }))
+  })
 
   server.on('alias-error', ({ error }) => {
     console.error(error)
@@ -44,20 +44,12 @@ test('put alias happy flow', async t => {
   await server.swarm.flush()
 
   // Mostly just checking the event
-  client.on(
-    'alias-attempt',
-    ({
-      alias,
-      targetKey,
-      hostname,
-      service
-    }) => {
-      t.is(alias, 'dummy', 'correct alias')
-      t.alike(key, targetKey, 'correct key')
-      t.is(hostname, 'my-host', 'correct host')
-      t.is(service, 'my-service', 'correct service')
-    }
-  )
+  client.on('alias-attempt', ({ alias, targetKey, hostname, service }) => {
+    t.is(alias, 'dummy', 'correct alias')
+    t.alike(key, targetKey, 'correct key')
+    t.is(hostname, 'my-host', 'correct host')
+    t.is(service, 'my-service', 'correct service')
+  })
 
   server.on('alias-success', ({ alias, targetPublicKey }) => {
     t.is(alias, 'dummy', 'correct alias')
@@ -71,18 +63,18 @@ test('put alias happy flow', async t => {
   t.ok(infoLogs[2].includes('Alias success for dummy->'), 'alias-success log')
 })
 
-test('put alias error in cb', async t => {
+test('put alias error in cb', async (t) => {
   t.plan(3)
 
-  const putAliasCb = async (alias, targetPublicKey) => {
+  const putAliasCb = (alias, targetPublicKey) => {
     throw new Error('put alias error')
   }
 
   const { client, server } = await setup(t, putAliasCb)
   const infoLogs = []
-  server.registerLogger(({
+  server.registerLogger({
     info: (d) => infoLogs.push(d)
-  }))
+  })
 
   await server.swarm.listen()
   await server.swarm.flush()
@@ -102,8 +94,8 @@ test('put alias error in cb', async t => {
   t.ok(infoLogs[2].includes('Alias error:'), 'alias-error log')
 })
 
-test('put alias invalid input', async t => {
-  const putAliasCb = async (alias, targetPublicKey) => {
+test('put alias invalid input', async (t) => {
+  const putAliasCb = (alias, targetPublicKey) => {
     t.fail('should not get here')
   }
 
@@ -122,18 +114,18 @@ test('put alias invalid input', async t => {
   )
 })
 
-test('put alias incorrect secret', async t => {
+test('put alias incorrect secret', async (t) => {
   t.plan(3)
 
-  const putAliasCb = async (alias, targetPublicKey) => {
+  const putAliasCb = (alias, targetPublicKey) => {
     t.fail('should not get here')
   }
 
   const { client, server } = await setup(t, putAliasCb)
   const infoLogs = []
-  server.registerLogger(({
+  server.registerLogger({
     info: (d) => infoLogs.push(d)
-  }))
+  })
 
   server.on('alias-unauthorised', () => {
     t.pass('received unauthorised event')
@@ -159,8 +151,8 @@ test('put alias incorrect secret', async t => {
   t.ok(infoLogs[1].includes('Unauthorised alias request from '), 'alias-unauthorised log')
 })
 
-test('put alias with different major', async t => {
-  const putAliasCb = async (alias, targetPublicKey) => {
+test('put alias with different major', async (t) => {
+  const putAliasCb = (alias, targetPublicKey) => {
     t.fail('should not get here')
   }
 
@@ -179,12 +171,15 @@ test('put alias with different major', async t => {
     t.fail()
   } catch (e) {
     t.is(e.code, 'DECODE_ERROR')
-    t.is(e.cause.message, 'Cannot decode RegisterRequest of other major version 1000 (own major: 1)')
+    t.is(
+      e.cause.message,
+      'Cannot decode RegisterRequest of other major version 1000 (own major: 1)'
+    )
   }
 })
 
-test('put alias fails if remote not available', async t => {
-  const putAliasCb = async () => {
+test('put alias fails if remote not available', async (t) => {
+  const putAliasCb = () => {
     t.fail('should not happen')
   }
 
@@ -198,9 +193,9 @@ test('put alias fails if remote not available', async t => {
   )
 })
 
-test('put alias fails after timeout', async t => {
+test('put alias fails after timeout', async (t) => {
   const putAliasCb = async () => {
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
   const { client, server } = await setup(t, putAliasCb)
@@ -214,8 +209,8 @@ test('put alias fails after timeout', async t => {
   )
 })
 
-test('put alias with higher minor', async t => {
-  const putAliasCb = async (alias, targetPublicKey) => {
+test('put alias with higher minor', async (t) => {
+  const putAliasCb = (alias, targetPublicKey) => {
     t.fail('should not get here')
   }
 
@@ -234,17 +229,17 @@ test('put alias with higher minor', async t => {
     t.fail('no error')
   } catch (e) {
     t.is(e.code, 'DECODE_ERROR')
-    t.is(e.cause.message, 'Cannot decode RegisterRequest of higher minor version 1000 (own minor: 1)')
+    t.is(
+      e.cause.message,
+      'Cannot decode RegisterRequest of higher minor version 1000 (own minor: 1)'
+    )
   }
 })
 
-test('Example works (sanity check)', async t => {
+test('Example works (sanity check)', (t) => {
   t.plan(4)
 
-  const exProc = spawn(
-    process.execPath,
-    [EXAMPLE_PATH]
-  )
+  const exProc = spawn(process.execPath, [EXAMPLE_PATH])
 
   // To avoid zombie processes in case there's an error
   process.on('exit', () => {
@@ -252,14 +247,14 @@ test('Example works (sanity check)', async t => {
     exProc.kill('SIGKILL')
   })
 
-  exProc.stderr.on('data', d => {
+  exProc.stderr.on('data', (d) => {
     console.error(d.toString())
     t.fail('There should be no stderr')
   })
 
   const lines = []
   const stdoutDec = new NewlineDecoder('utf-8')
-  exProc.stdout.on('data', async d => {
+  exProc.stdout.on('data', (d) => {
     for (const line of stdoutDec.push(d)) {
       lines.push(line)
     }
@@ -273,7 +268,7 @@ test('Example works (sanity check)', async t => {
   })
 })
 
-async function setup (t, putAliasCb, clientOpts = {}) {
+async function setup(t, putAliasCb, clientOpts = {}) {
   const testnet = await createTestnet()
   const bootstrap = testnet.bootstrap
 
@@ -282,19 +277,12 @@ async function setup (t, putAliasCb, clientOpts = {}) {
 
   const sharedSecret = hypCrypto.randomBytes(32)
 
-  const server = new AliasRpcServer(
-    swarm, sharedSecret, putAliasCb
-  )
+  const server = new AliasRpcServer(swarm, sharedSecret, putAliasCb)
 
   const clientDht = new HyperDHT({ bootstrap })
   const rpcClient = new ProtomuxRpcClient(clientDht)
 
-  const client = new AliasRpcClient(
-    server.publicKey,
-    sharedSecret,
-    rpcClient,
-    clientOpts
-  )
+  const client = new AliasRpcClient(server.publicKey, sharedSecret, rpcClient, clientOpts)
 
   t.teardown(async () => {
     await rpcClient.close()

@@ -9,7 +9,7 @@ const { AliasReqEnc, AliasRespEnc } = require('./lib/encodings')
 const PROTOCOL_NAME = 'register-alias'
 
 class AliasRpcServer extends EventEmitter {
-  constructor (swarm, secret, putAliasCb) {
+  constructor(swarm, secret, putAliasCb) {
     super()
 
     this.swarm = swarm
@@ -19,11 +19,11 @@ class AliasRpcServer extends EventEmitter {
     this.swarm.on('connection', this._onconnection.bind(this))
   }
 
-  get publicKey () {
+  get publicKey() {
     return this.swarm.keyPair.publicKey
   }
 
-  _onconnection (socket) {
+  _onconnection(socket) {
     const uid = crypto.randomUUID()
     const remotePublicKey = socket.remotePublicKey
     const remoteAddress = `${socket.rawStream.remoteHost}:${socket.rawStream.remotePort}`
@@ -49,11 +49,24 @@ class AliasRpcServer extends EventEmitter {
         const service = req.service
 
         if (!b4a.equals(req.secret, this.secret)) {
-          this.emit('alias-unauthorised', { uid, remotePublicKey, targetPublicKey, alias, remoteAddress })
+          this.emit('alias-unauthorised', {
+            uid,
+            remotePublicKey,
+            targetPublicKey,
+            alias,
+            remoteAddress
+          })
           return { success: false, errorMessage: 'Unauthorised' }
         }
 
-        this.emit('alias-request', { uid, remotePublicKey, targetPublicKey, alias, hostname, service })
+        this.emit('alias-request', {
+          uid,
+          remotePublicKey,
+          targetPublicKey,
+          alias,
+          hostname,
+          service
+        })
         try {
           const updated = await this._putAlias(alias, targetPublicKey, hostname, service)
           this.emit('alias-success', { uid, alias, remotePublicKey, targetPublicKey, updated })
@@ -72,47 +85,44 @@ class AliasRpcServer extends EventEmitter {
     )
   }
 
-  registerLogger (logger) {
+  registerLogger(logger) {
+    this.on('alias-request', ({ uid, remotePublicKey, targetPublicKey, alias }) => {
+      logger.info(
+        `Alias request from ${idEnc.normalize(remotePublicKey)} to set ${alias}->${idEnc.normalize(targetPublicKey)} (uid ${uid})`
+      )
+    })
+    this.on('alias-success', ({ uid, alias, targetPublicKey, updated }) => {
+      logger.info(
+        `Alias success for ${alias}->${idEnc.normalize(targetPublicKey)}--updated: ${updated} (uid: ${uid})`
+      )
+    })
     this.on(
-      'alias-request',
-      ({ uid, remotePublicKey, targetPublicKey, alias }) => {
-        logger.info(`Alias request from ${idEnc.normalize(remotePublicKey)} to set ${alias}->${idEnc.normalize(targetPublicKey)} (uid ${uid})`)
+      'alias-unauthorised',
+      ({ uid, remotePublicKey, targetPublicKey, alias, remoteAddress }) => {
+        logger.info(
+          `Unauthorised alias request from ${idEnc.normalize(remotePublicKey)} (${remoteAddress}) to set alias ${alias}->${idEnc.normalize(targetPublicKey)} (uid: ${uid})`
+        )
       }
     )
-    this.on(
-      'alias-success', ({ uid, alias, targetPublicKey, updated }) => {
-        logger.info(`Alias success for ${alias}->${idEnc.normalize(targetPublicKey)}--updated: ${updated} (uid: ${uid})`)
-      }
-    )
-    this.on(
-      'alias-unauthorised', ({ uid, remotePublicKey, targetPublicKey, alias, remoteAddress }) => {
-        logger.info(`Unauthorised alias request from ${idEnc.normalize(remotePublicKey)} (${remoteAddress}) to set alias ${alias}->${idEnc.normalize(targetPublicKey)} (uid: ${uid})`)
-      }
-    )
-    this.on(
-      'alias-error', ({ uid, error }) => {
-        logger.info(`Alias error: ${error} (${uid})`)
-      }
-    )
+    this.on('alias-error', ({ uid, error }) => {
+      logger.info(`Alias error: ${error} (${uid})`)
+    })
 
-    this.on(
-      'connection-open',
-      ({ uid, remotePublicKey, remoteAddress }) => {
-        logger.info(`Alias server opened connection to ${idEnc.normalize(remotePublicKey)} at ${remoteAddress} (uid ${uid})`)
-      }
-    )
-    this.on(
-      'connection-close',
-      ({ uid, remotePublicKey }) => {
-        logger.info(`Alias server closed connection to ${idEnc.normalize(remotePublicKey)} (uid ${uid})`)
-      }
-    )
-    this.on(
-      'connection-error',
-      ({ uid, error, remotePublicKey }) => {
-        logger.info(`Alias server socket error: ${error.stack} on connection to ${idEnc.normalize(remotePublicKey)} (uid ${uid})`)
-      }
-    )
+    this.on('connection-open', ({ uid, remotePublicKey, remoteAddress }) => {
+      logger.info(
+        `Alias server opened connection to ${idEnc.normalize(remotePublicKey)} at ${remoteAddress} (uid ${uid})`
+      )
+    })
+    this.on('connection-close', ({ uid, remotePublicKey }) => {
+      logger.info(
+        `Alias server closed connection to ${idEnc.normalize(remotePublicKey)} (uid ${uid})`
+      )
+    })
+    this.on('connection-error', ({ uid, error, remotePublicKey }) => {
+      logger.info(
+        `Alias server socket error: ${error.stack} on connection to ${idEnc.normalize(remotePublicKey)} (uid ${uid})`
+      )
+    })
   }
 }
 

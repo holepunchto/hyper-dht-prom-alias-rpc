@@ -95,6 +95,7 @@ Hostname and service are included for easy filtering in prometheus:
 `service` indicates the kind of service registered.
 
 `opts` include:
+
 - `timeout` max request duration before it times out (in ms)
 
 Returns a boolean `updated` which is true when the entry was not yet present in the server.
