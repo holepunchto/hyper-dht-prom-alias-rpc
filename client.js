@@ -8,7 +8,7 @@ const { AliasReqEnc, AliasRespEnc } = require('./lib/encodings')
 const PROTOCOL_NAME = 'register-alias'
 
 class AliasRpcClient extends EventEmitter {
-  constructor (serverPubKey, secret, rpcClient) {
+  constructor(serverPubKey, secret, rpcClient) {
     super()
 
     this.rpcClient = rpcClient
@@ -16,7 +16,7 @@ class AliasRpcClient extends EventEmitter {
     this.secret = idEnc.decode(secret)
   }
 
-  async registerAlias (alias, targetKey, hostname, service, { major, minor, timeout } = {}) {
+  async registerAlias(alias, targetKey, hostname, service, { major, minor, timeout } = {}) {
     targetKey = idEnc.decode(targetKey)
     const uid = crypto.randomUUID()
 

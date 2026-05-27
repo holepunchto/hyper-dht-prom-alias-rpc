@@ -8,11 +8,13 @@ const AliasRpcClient = require('./client')
 const AliasRpcServer = require('.') // dht-prom-alias-rpc')
 const ProtomuxRpcClient = require('protomux-rpc-client')
 
-async function setupServer (secret, bootstrap) {
+async function setupServer(secret, bootstrap) {
   const putAliasCb = (alias, targetPubKey, hostname, service) => {
     // Called whenever a new alias request is received:
     // Use this function to setup the scraper targetting the alias's public key
-    console.log(`Received register request for alias ${alias}->${targetPubKey.toString('hex')} for service ${service} at host ${hostname}`)
+    console.log(
+      `Received register request for alias ${alias}->${targetPubKey.toString('hex')} for service ${service} at host ${hostname}`
+    )
   }
 
   const swarm = new Hyperswarm({ bootstrap })
@@ -25,7 +27,7 @@ async function setupServer (secret, bootstrap) {
   return aliasRpcServer
 }
 
-async function main () {
+async function main() {
   const secret = hypCrypto.randomBytes(32)
   const testnet = await setupTestnet()
   const bootstrap = testnet.bootstrap
@@ -37,12 +39,7 @@ async function main () {
   const rpcClient = new ProtomuxRpcClient(clientDht)
   const client = new AliasRpcClient(rpcServer.publicKey, secret, rpcClient)
 
-  await client.registerAlias(
-    'dummy-service-alias',
-    'a'.repeat(64),
-    os.hostname(),
-    'dummy-service'
-  )
+  await client.registerAlias('dummy-service-alias', 'a'.repeat(64), os.hostname(), 'dummy-service')
 
   await rpcClient.close()
   await clientDht.destroy()
