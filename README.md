@@ -111,3 +111,8 @@ Emitted whenever an alias request is attempted.
 #### `client.on('connection-error', ({ error, alias, targetKey, uid }))`
 
 Emitted whenever a connection errors. Connection errors are expected, and this is not a call to action (the connection will clean itself up), but it can be useful for logging.
+
+## Fork
+
+Forked on 2026-06-17 from https://gitlab.com/dcent-tech/dht-prom-alias-rpc/,
+licensed under Apache-2.0. See NOTICE.

@@ -1,5 +1,5 @@
 {
-  "name": "dht-prom-alias-rpc",
+  "name": "hyper-dht-prom-alias-rpc",
   "version": "2.1.1",
   "description": "Protomux RPC for registering aliases with a dht-prometheus service",
   "main": "index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/dcent-tech/dht-prom-alias-rpc.git"
+    "url": "git+https://github.com/holepunchto/hyper-dht-prom-alias-rpc.git"
   },
   "keywords": [
     "DHT",
@@ -18,12 +18,12 @@
     "protomux",
     "rpc"
   ],
-  "author": "H. Degroote",
+  "author": "Holepunch Inc",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://gitlab.com/dcent-tech/dht-prom-alias-rpc/issues"
+    "url": "https://github.com/holepunchto/hyper-dht-prom-alias-rpc/issues"
   },
-  "homepage": "https://gitlab.com/dcent-tech/dht-prom-alias-rpc#readme",
+  "homepage": "https://github.com/holepunchto/hyper-dht-prom-alias-rpc#readme",
   "devDependencies": {
     "brittle": "^3.6.1",
     "hypercore-crypto": "^3.4.2",
