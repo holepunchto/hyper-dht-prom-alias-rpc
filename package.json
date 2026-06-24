@@ -4,7 +4,8 @@
   "description": "Protomux RPC for registering aliases with a dht-prometheus service",
   "main": "index.js",
   "scripts": {
-    "test": "npm run format:check && lunte &&  brittle --coverage test.js",
+    "test": "npm run format:check && lunte && brittle --coverage test.js",
+    "test:bare": "brittle-bare --coverage test.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -25,6 +26,10 @@
   },
   "homepage": "https://github.com/holepunchto/hyper-dht-prom-alias-rpc#readme",
   "devDependencies": {
+    "bare-os": "^3.9.1",
+    "bare-path": "^3.0.1",
+    "bare-process": "^4.5.0",
+    "bare-subprocess": "^6.1.0",
     "brittle": "^3.6.1",
     "hypercore-crypto": "^3.4.2",
     "hyperdht": "^6.16.0",
@@ -57,6 +62,22 @@
     "events": {
       "bare": "bare-events",
       "default": "events"
+    },
+    "child_process": {
+      "bare": "bare-subprocess",
+      "default": "child_process"
+    },
+    "process": {
+      "bare": "bare-process",
+      "default": "process"
+    },
+    "path": {
+      "bare": "bare-path",
+      "default": "path"
+    },
+    "os": {
+      "bare": "bare-os",
+      "default": "os"
     }
   }
 }
