@@ -4,7 +4,7 @@
   "description": "Protomux RPC for registering aliases with a dht-prometheus service",
   "main": "index.js",
   "scripts": {
-    "test": "npm run format:check && lunte && brittle --coverage test.js",
+    "test": "npm run format:check && lunte && brittle-node --coverage test.js",
     "test:bare": "brittle-bare --coverage test.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -30,7 +30,7 @@
     "bare-path": "^3.0.1",
     "bare-process": "^4.5.0",
     "bare-subprocess": "^6.1.0",
-    "brittle": "^3.6.1",
+    "brittle": "^4.0.2",
     "hypercore-crypto": "^3.4.2",
     "hyperdht": "^6.16.0",
     "hyperswarm": "^4.8.1",
