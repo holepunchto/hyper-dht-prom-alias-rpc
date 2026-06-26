@@ -5,7 +5,7 @@ const HyperDHT = require('hyperdht')
 const setupTestnet = require('hyperdht/testnet')
 
 const AliasRpcClient = require('./client')
-const AliasRpcServer = require('.') // dht-prom-alias-rpc')
+const AliasRpcServer = require('.') // hyper-dht-prom-alias-rpc
 const ProtomuxRpcClient = require('protomux-rpc-client')
 
 async function setupServer(secret, bootstrap) {
