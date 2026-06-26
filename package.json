@@ -1,7 +1,7 @@
 {
   "name": "hyper-dht-prom-alias-rpc",
   "version": "2.1.1",
-  "description": "Protomux RPC for registering aliases with a dht-prometheus service",
+  "description": "Protomux RPC for registering aliases with a hyper-dht-prometheus service",
   "main": "index.js",
   "scripts": {
     "test": "npm run format:check && lunte && brittle-node --coverage test.js",

@@ -1,6 +1,6 @@
-# DHT Prom Alias RPC
+# hyper-dht-prom-alias-rpc
 
-[Protomux RPC](https://github.com/holepunchto/protomux-rpc/) for registering aliases with a [DHT-Prometheus](https://github.com/HDegroote/dht-prometheus) service.
+[protomux-rpc](https://github.com/holepunchto/protomux-rpc/) for registering aliases with a [hyper-dht-prometheus](https://github.com/holepunchto/hyper-dht-prometheus) service.
 
 ## Usage
 
@@ -9,7 +9,7 @@ See [./example.js](example.js)
 ## Install
 
 ```
-npm i dht-prom-alias-rpc
+npm i hyper-dht-prom-alias-rpc
 ```
 
 ## API
@@ -20,7 +20,7 @@ npm i dht-prom-alias-rpc
 
 Create a new alias rpc server.
 
-`swarm` is a [Hyperswarm](https://github.com/holepunchto/hyperswarm) instance. Its life cycle is NOT managed by the RPC server.
+`swarm` is a [hyperswarm](https://github.com/holepunchto/hyperswarm) instance. Its life cycle is NOT managed by the RPC server.
 
 Note: `rpcServer.swarm.listen()` needs to be called before the rpcServer has a public key and connections are accepted.
 
@@ -82,7 +82,7 @@ Create a new alias rpc client.
 
 `secret` is the secret shared with the server.
 
-`protomuxRpcClient` is a [Protomux RPC Client](https://github.com/holepunchto/protomux-rpc-client) instance. Its lifecycle is NOT managed by the rpc client.
+`protomuxRpcClient` is a [protomux-rpc-client](https://github.com/holepunchto/protomux-rpc-client) instance. Its lifecycle is NOT managed by the rpc client.
 
 #### `const updated = await client.registerAlias(alias, targetKey, hostname, service, opts?)`
 
